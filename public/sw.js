@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spotidrive-v3';
+const CACHE_NAME = 'spotidrive-v4';
 const ASSETS = [
   './',
   './index.html',
@@ -26,7 +26,20 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
-  if (request.url.includes('/api/drive/stream/') || request.url.includes('googleapis.com')) return;
+
+  const url = new URL(request.url);
+
+  // Nunca interceptar peticiones externas (Google Drive, LRCLIB, etc.), ni streams de audio o Range requests
+  if (
+    url.origin !== self.location.origin ||
+    url.pathname.includes('/api/') ||
+    url.pathname.includes('/tracks/') ||
+    url.pathname.endsWith('.mp3') ||
+    request.destination === 'audio' ||
+    request.headers.has('range')
+  ) {
+    return;
+  }
 
   event.respondWith(
     fetch(request)

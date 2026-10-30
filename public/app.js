@@ -15,6 +15,7 @@ const DEMO_TRACKS = [
     artist: 'Anuel AA',
     album: 'SpotiDrive Adders',
     driveFileId: '1oHUSUHlvpgmVQF9uSs8CYs6ds61zqW4R',
+    streamUrl: './tracks/1oHUSUHlvpgmVQF9uSs8CYs6ds61zqW4R.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23e52d27'/><stop offset='100%' stop-color='%23b31217'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g1)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🔥</text></svg>"
@@ -25,6 +26,7 @@ const DEMO_TRACKS = [
     artist: 'Anuel AA',
     album: 'SpotiDrive Adders',
     driveFileId: '1PxVFIIdRUvWA9-9-Rqe8KAtpJikd_tqx',
+    streamUrl: './tracks/1PxVFIIdRUvWA9-9-Rqe8KAtpJikd_tqx.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%238e2de2'/><stop offset='100%' stop-color='%234a00e0'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g2)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🥃</text></svg>"
@@ -35,6 +37,7 @@ const DEMO_TRACKS = [
     artist: 'Aventura',
     album: 'SpotiDrive Adders',
     driveFileId: '10Uvf7gyHS1xuAEAR8kJCUwKsYIcu1VO2',
+    streamUrl: './tracks/10Uvf7gyHS1xuAEAR8kJCUwKsYIcu1VO2.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%2311998e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g3)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎸</text></svg>"
@@ -45,6 +48,7 @@ const DEMO_TRACKS = [
     artist: 'Aventura',
     album: 'SpotiDrive Adders',
     driveFileId: '1GNUIGjBn4CKa7XmTdguInvyNzkSYOJbH',
+    streamUrl: './tracks/1GNUIGjBn4CKa7XmTdguInvyNzkSYOJbH.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%2300b4db'/><stop offset='100%' stop-color='%230083b0'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g4)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎶</text></svg>"
@@ -55,6 +59,7 @@ const DEMO_TRACKS = [
     artist: 'Aventura',
     album: 'SpotiDrive Adders',
     driveFileId: '1Z7k9sE8SzYW7UhdRo72Yb-f_ekD6BHQw',
+    streamUrl: './tracks/1Z7k9sE8SzYW7UhdRo72Yb-f_ekD6BHQw.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g5' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23f7971e'/><stop offset='100%' stop-color='%23ffd200'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g5)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>⚡</text></svg>"
@@ -65,6 +70,7 @@ const DEMO_TRACKS = [
     artist: 'Aventura',
     album: 'SpotiDrive Adders',
     driveFileId: '1v8-CrhE_ZsfWRKq9BYuV1Q-QQUjk8peK',
+    streamUrl: './tracks/1v8-CrhE_ZsfWRKq9BYuV1Q-QQUjk8peK.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g6' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ff416c'/><stop offset='100%' stop-color='%23ff4b2b'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g6)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>❤️</text></svg>"
@@ -75,6 +81,7 @@ const DEMO_TRACKS = [
     artist: 'Aventura',
     album: 'SpotiDrive Adders',
     driveFileId: '1yXoUsEi_4FyL5IjQV2pe2IpKNeGHpy7h',
+    streamUrl: './tracks/1yXoUsEi_4FyL5IjQV2pe2IpKNeGHpy7h.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g7' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23232526'/><stop offset='100%' stop-color='%23414345'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g7)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🕶️</text></svg>"
@@ -85,6 +92,7 @@ const DEMO_TRACKS = [
     artist: 'Backstreet Boys',
     album: 'SpotiDrive Adders',
     driveFileId: '1tsjTrxlXxrGdOPVv9R0k9HM-3IOv4hUR',
+    streamUrl: './tracks/1tsjTrxlXxrGdOPVv9R0k9HM-3IOv4hUR.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g8' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%233a7bd5'/><stop offset='100%' stop-color='%233a6073'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g8)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>💿</text></svg>"
@@ -95,6 +103,7 @@ const DEMO_TRACKS = [
     artist: 'Farruko',
     album: 'SpotiDrive Adders',
     driveFileId: '1gAZOQ2zA1_4OCpMxDRuwje9PRBFEAjNr',
+    streamUrl: './tracks/1gAZOQ2zA1_4OCpMxDRuwje9PRBFEAjNr.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g9' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23654ea3'/><stop offset='100%' stop-color='%23eaafc8'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g9)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎤</text></svg>"
@@ -105,6 +114,7 @@ const DEMO_TRACKS = [
     artist: 'Zion',
     album: 'SpotiDrive Adders',
     driveFileId: '1v9isBDubzz5L2yUUbkLE8CQ051W00FoK',
+    streamUrl: './tracks/1v9isBDubzz5L2yUUbkLE8CQ051W00FoK.mp3',
     source: 'drive',
     playlistId: 'pl-amigos',
     cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g10' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%230d3b1e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g10)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎧</text></svg>"
@@ -501,6 +511,7 @@ function isStaticHost() {
 
 function getPlayableUrl(track) {
   if (track.blobUrl) return track.blobUrl;
+  if (track.streamUrl) return track.streamUrl;
   if (track.source === 'demo') return getDemoSynthesizedWavUrl();
   if (track.driveFileId) {
     if (isStaticHost()) {
@@ -514,7 +525,7 @@ function getPlayableUrl(track) {
       : '';
     return `/api/drive/stream/${encodeURIComponent(track.driveFileId)}${keyParam}`;
   }
-  return track.streamUrl || '';
+  return '';
 }
 
 async function loadInitialCatalog() {
@@ -524,7 +535,7 @@ async function loadInitialCatalog() {
   // 1. Cargar primero lo guardado en localStorage (funciona en GitHub Pages y Offline)
   let localCatalog = null;
   try {
-    const rawLocal = localStorage.getItem('spotidrive_catalog_v2');
+    const rawLocal = localStorage.getItem('spotidrive_catalog_v3');
     if (rawLocal) localCatalog = JSON.parse(rawLocal);
   } catch {
     localCatalog = null;
@@ -602,10 +613,14 @@ async function loadInitialCatalog() {
   }
 
   // Combinar canciones con el catálogo inicial de "SpotiDrive Adders" + modo Offline
+  const defaultMap = new Map(DEMO_TRACKS.map((d) => [d.id, d]));
   const mergedMap = new Map();
-  for (const d of DEMO_TRACKS) mergedMap.set(d.id, d);
+  for (const d of DEMO_TRACKS) mergedMap.set(d.id, { ...d });
   for (const t of state.tracks) {
-    if (t.source !== 'demo') mergedMap.set(t.id, t);
+    if (t.source !== 'demo') {
+      const base = defaultMap.get(t.id) || {};
+      mergedMap.set(t.id, { ...base, ...t, streamUrl: t.streamUrl || base.streamUrl || '' });
+    }
   }
   for (const t of offlineSavedTracks) {
     if (!mergedMap.has(t.id)) mergedMap.set(t.id, t);
@@ -636,7 +651,7 @@ async function persistCatalogToServer() {
   };
 
   try {
-    localStorage.setItem('spotidrive_catalog_v2', JSON.stringify(payload));
+    localStorage.setItem('spotidrive_catalog_v3', JSON.stringify(payload));
   } catch {
     // Cuota de localStorage llena
   }
@@ -884,8 +899,30 @@ async function playTrackByIndex(index, customQueue = null) {
     await audio.play();
     state.isPlaying = true;
   } catch (err) {
-    console.warn('Reproducción esperando interacción:', err);
-    state.isPlaying = false;
+    // Si es una nueva canción directa de Google Drive en GitHub Pages y <audio> bloqueó el Range request, la descargamos por fetch() como Blob
+    if (track.driveFileId && playUrl.includes('drive.usercontent.google.com')) {
+      try {
+        showToast(`⏳ Cargando "${track.title}" desde Google Drive...`);
+        const resp = await fetch(playUrl, { credentials: 'omit' });
+        if (resp.ok) {
+          const blob = await resp.blob();
+          const blobUrl = URL.createObjectURL(blob);
+          track.blobUrl = blobUrl;
+          audio.src = blobUrl;
+          await audio.play();
+          state.isPlaying = true;
+          saveTrackOffline(track, blob);
+        } else {
+          state.isPlaying = false;
+        }
+      } catch (e2) {
+        console.warn('Error cargando blob desde Drive:', e2);
+        state.isPlaying = false;
+      }
+    } else {
+      console.warn('Reproducción esperando interacción:', err);
+      state.isPlaying = false;
+    }
   }
 
   updatePlayerBarUI(track);
