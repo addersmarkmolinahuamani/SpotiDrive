@@ -5,44 +5,117 @@
 const DEFAULT_COVER =
   "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%230d3b1e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g)'/><text x='100' y='118' font-size='78' text-anchor='middle' fill='%23fff'>♪</text></svg>";
 
-// Canciones de demostración con letras sincronizadas (.LRC) para probar al instante
+const DEFAULT_DRIVE_FOLDER_ID = '1ULJHUwjza3AE8BsBSskTgnU4hnNFP9Gj';
+
+// Canciones reales sincronizadas desde tu carpeta "SpotiDrive Adders" en Google Drive
 const DEMO_TRACKS = [
   {
-    id: 'demo-1',
-    title: 'Midnight Drive (Demo 5TB)',
-    artist: 'SpotiDrive Synthwave',
-    album: 'Demo Cloud Sessions',
-    source: 'demo',
-    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%238e2de2'/><stop offset='100%' stop-color='%234a00e0'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g1)'/><text x='100' y='115' font-size='64' text-anchor='middle' fill='%23fff'>🌆</text></svg>",
-    lyrics: `[00:00.00] 🎵 Midnight Drive — SpotiDrive 5TB
-[00:03.00] Conectando tus 5 TB de Google Drive...
-[00:06.50] Escucha tu música desde laptop o celular
-[00:10.00] Descarga tus canciones favoritas en Modo Offline ⬇️
-[00:14.00] Comparte playlists con tus amigos con un solo link 🔗
-[00:18.00] Haz clic en cualquier línea de esta letra para saltar a ese segundo
-[00:22.00] ¡Sube tus propios archivos MP3 o FLAC para empezar!`
+    id: 'drive-1oHUSUHlvpgmVQF9uSs8CYs6ds61zqW4R',
+    title: 'Sola (Remix) ft. Farruko, Daddy Yankee, Wisin, Zion & Lennox',
+    artist: 'Anuel AA',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1oHUSUHlvpgmVQF9uSs8CYs6ds61zqW4R',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g1' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23e52d27'/><stop offset='100%' stop-color='%23b31217'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g1)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🔥</text></svg>"
   },
   {
-    id: 'demo-2',
-    title: 'Neon Horizon (Karaoke Test)',
-    artist: 'Cloud Beats Collective',
-    album: 'Favoritas con Amigos',
-    source: 'demo',
-    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%2311998e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g2)'/><text x='100' y='115' font-size='64' text-anchor='middle' fill='%23fff'>🎧</text></svg>",
-    lyrics: `[00:00.00] 🎤 Neon Horizon — Modo Karaoke Activo
-[00:03.50] Las luces de la ciudad brillan en la pantalla
-[00:07.00] Tu biblioteca entera guardada en la nube
-[00:11.00] Sin límites de espacio con tus 5 Terabytes
-[00:15.00] Cambia de canción desde la pantalla de bloqueo de tu celular
-[00:19.00] ¡Disfruta tu propio Spotify personalizado!`
+    id: 'drive-1PxVFIIdRUvWA9-9-Rqe8KAtpJikd_tqx',
+    title: 'Quiere Beber',
+    artist: 'Anuel AA',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1PxVFIIdRUvWA9-9-Rqe8KAtpJikd_tqx',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g2' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%238e2de2'/><stop offset='100%' stop-color='%234a00e0'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g2)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🥃</text></svg>"
+  },
+  {
+    id: 'drive-10Uvf7gyHS1xuAEAR8kJCUwKsYIcu1VO2',
+    title: 'Amor de Madre',
+    artist: 'Aventura',
+    album: 'SpotiDrive Adders',
+    driveFileId: '10Uvf7gyHS1xuAEAR8kJCUwKsYIcu1VO2',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g3' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%2311998e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g3)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎸</text></svg>"
+  },
+  {
+    id: 'drive-1GNUIGjBn4CKa7XmTdguInvyNzkSYOJbH',
+    title: 'Enséñame a Olvidar',
+    artist: 'Aventura',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1GNUIGjBn4CKa7XmTdguInvyNzkSYOJbH',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g4' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%2300b4db'/><stop offset='100%' stop-color='%230083b0'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g4)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎶</text></svg>"
+  },
+  {
+    id: 'drive-1Z7k9sE8SzYW7UhdRo72Yb-f_ekD6BHQw',
+    title: 'La Guerra',
+    artist: 'Aventura',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1Z7k9sE8SzYW7UhdRo72Yb-f_ekD6BHQw',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g5' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23f7971e'/><stop offset='100%' stop-color='%23ffd200'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g5)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>⚡</text></svg>"
+  },
+  {
+    id: 'drive-1v8-CrhE_ZsfWRKq9BYuV1Q-QQUjk8peK',
+    title: 'Dile al Amor',
+    artist: 'Aventura',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1v8-CrhE_ZsfWRKq9BYuV1Q-QQUjk8peK',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g6' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23ff416c'/><stop offset='100%' stop-color='%23ff4b2b'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g6)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>❤️</text></svg>"
+  },
+  {
+    id: 'drive-1yXoUsEi_4FyL5IjQV2pe2IpKNeGHpy7h',
+    title: 'El Malo',
+    artist: 'Aventura',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1yXoUsEi_4FyL5IjQV2pe2IpKNeGHpy7h',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g7' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23232526'/><stop offset='100%' stop-color='%23414345'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g7)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🕶️</text></svg>"
+  },
+  {
+    id: 'drive-1tsjTrxlXxrGdOPVv9R0k9HM-3IOv4hUR',
+    title: 'I Want It That Way',
+    artist: 'Backstreet Boys',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1tsjTrxlXxrGdOPVv9R0k9HM-3IOv4hUR',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g8' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%233a7bd5'/><stop offset='100%' stop-color='%233a6073'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g8)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>💿</text></svg>"
+  },
+  {
+    id: 'drive-1gAZOQ2zA1_4OCpMxDRuwje9PRBFEAjNr',
+    title: 'Ella y Yo (ft. Anuel AA, Tempo, Bryant Myers, Almighty)',
+    artist: 'Farruko',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1gAZOQ2zA1_4OCpMxDRuwje9PRBFEAjNr',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g9' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%23654ea3'/><stop offset='100%' stop-color='%23eaafc8'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g9)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎤</text></svg>"
+  },
+  {
+    id: 'drive-1v9isBDubzz5L2yUUbkLE8CQ051W00FoK',
+    title: 'Zun Da Da',
+    artist: 'Zion',
+    album: 'SpotiDrive Adders',
+    driveFileId: '1v9isBDubzz5L2yUUbkLE8CQ051W00FoK',
+    source: 'drive',
+    playlistId: 'pl-amigos',
+    cover: "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 200 200'><defs><linearGradient id='g10' x1='0' y1='0' x2='1' y2='1'><stop offset='0%' stop-color='%231db954'/><stop offset='100%' stop-color='%230d3b1e'/></linearGradient></defs><rect width='200' height='200' fill='url(%23g10)'/><text x='100' y='118' font-size='64' text-anchor='middle' fill='%23fff'>🎧</text></svg>"
   }
 ];
 
 // Estado global de la aplicación
 const state = {
   settings: {
-    appName: 'SpotiDrive 5TB',
-    driveFolderId: '',
+    appName: 'SpotiDrive Adders',
+    driveFolderId: DEFAULT_DRIVE_FOLDER_ID,
     driveApiKey: '',
     friendPasscode: '',
     requirePasscode: false
@@ -434,7 +507,7 @@ function getPlayableUrl(track) {
       if (state.settings.driveApiKey) {
         return `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveFileId)}?alt=media&key=${encodeURIComponent(state.settings.driveApiKey)}`;
       }
-      return `https://docs.google.com/uc?export=download&id=${encodeURIComponent(track.driveFileId)}`;
+      return `https://drive.usercontent.google.com/download?id=${encodeURIComponent(track.driveFileId)}&export=download`;
     }
     const keyParam = state.settings.driveApiKey
       ? `?key=${encodeURIComponent(state.settings.driveApiKey)}`
@@ -451,7 +524,7 @@ async function loadInitialCatalog() {
   // 1. Cargar primero lo guardado en localStorage (funciona en GitHub Pages y Offline)
   let localCatalog = null;
   try {
-    const rawLocal = localStorage.getItem('spotidrive_catalog_v1');
+    const rawLocal = localStorage.getItem('spotidrive_catalog_v2');
     if (rawLocal) localCatalog = JSON.parse(rawLocal);
   } catch {
     localCatalog = null;
@@ -465,6 +538,10 @@ async function loadInitialCatalog() {
     if (Array.isArray(localCatalog.tracks) && localCatalog.tracks.length > 0) {
       state.tracks = localCatalog.tracks;
     }
+  }
+
+  if (!state.settings.driveFolderId) {
+    state.settings.driveFolderId = DEFAULT_DRIVE_FOLDER_ID;
   }
 
   // 2. Leer parámetros compartidos en el Link (para que tus amigos en GitHub Pages reciban tu carpeta de Drive automáticamente)
@@ -517,30 +594,25 @@ async function loadInitialCatalog() {
   }
 
   // Actualizar UI de configuración
-  document.getElementById('sidebarAppName').innerHTML = `${escapeHtml(state.settings.appName || 'SpotiDrive 5TB')}`;
-  document.getElementById('inputAppName').value = state.settings.appName || 'SpotiDrive 5TB';
-  document.getElementById('inputDriveFolder').value = state.settings.driveFolderId || '';
+  document.getElementById('sidebarAppName').innerHTML = `${escapeHtml(state.settings.appName || 'SpotiDrive Adders')}`;
+  document.getElementById('inputAppName').value = state.settings.appName || 'SpotiDrive Adders';
+  document.getElementById('inputDriveFolder').value = state.settings.driveFolderId || DEFAULT_DRIVE_FOLDER_ID;
   if (state.settings.driveFolderId) {
     document.getElementById('driveBtnLabel').textContent = 'Google Drive Conectado ✓';
   }
 
-  // Combinar canciones con modo Offline + Demo si está vacío
+  // Combinar canciones con el catálogo inicial de "SpotiDrive Adders" + modo Offline
   const mergedMap = new Map();
-  for (const t of state.tracks) mergedMap.set(t.id, t);
+  for (const d of DEMO_TRACKS) mergedMap.set(d.id, d);
+  for (const t of state.tracks) {
+    if (t.source !== 'demo') mergedMap.set(t.id, t);
+  }
   for (const t of offlineSavedTracks) {
     if (!mergedMap.has(t.id)) mergedMap.set(t.id, t);
-  }
-  if (mergedMap.size === 0) {
-    for (const d of DEMO_TRACKS) mergedMap.set(d.id, d);
   }
   state.tracks = Array.from(mergedMap.values());
 
   renderAll();
-
-  // Si hay carpeta de Drive configurada y solo están las demos, sincronizar automáticamente (incluso sin API Key)
-  if (state.settings.driveFolderId && state.tracks.every((t) => t.source === 'demo')) {
-    syncGoogleDriveFolder();
-  }
 }
 
 async function persistCatalogToServer() {
@@ -564,7 +636,7 @@ async function persistCatalogToServer() {
   };
 
   try {
-    localStorage.setItem('spotidrive_catalog_v1', JSON.stringify(payload));
+    localStorage.setItem('spotidrive_catalog_v2', JSON.stringify(payload));
   } catch {
     // Cuota de localStorage llena
   }

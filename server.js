@@ -22,8 +22,8 @@ if (!fs.existsSync(DATA_DIR)) {
 
 const DEFAULT_CATALOG = {
   settings: {
-    appName: 'SpotiDrive 5TB',
-    driveFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || '',
+    appName: 'SpotiDrive Adders',
+    driveFolderId: process.env.GOOGLE_DRIVE_FOLDER_ID || '1ULJHUwjza3AE8BsBSskTgnU4hnNFP9Gj',
     driveApiKey: process.env.GOOGLE_DRIVE_API_KEY || '',
     friendPasscode: process.env.FRIEND_PASSCODE || '', // Vacío = acceso directo sin contraseña
     requirePasscode: false
@@ -183,7 +183,7 @@ app.get('/api/drive/stream/:fileId', (req, res) => {
   if (apiKey) {
     targetUrl = `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(fileId)}?alt=media&key=${encodeURIComponent(apiKey)}`;
   } else {
-    targetUrl = `https://drive.google.com/uc?export=download&id=${encodeURIComponent(fileId)}`;
+    targetUrl = `https://drive.usercontent.google.com/download?id=${encodeURIComponent(fileId)}&export=download`;
   }
 
   const headers = {};

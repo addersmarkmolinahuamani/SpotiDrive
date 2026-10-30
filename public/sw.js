@@ -1,4 +1,4 @@
-const CACHE_NAME = 'spotidrive-v2';
+const CACHE_NAME = 'spotidrive-v3';
 const ASSETS = [
   './',
   './index.html',
