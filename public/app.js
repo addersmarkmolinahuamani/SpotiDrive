@@ -422,10 +422,20 @@ function extractDriveId(input) {
   return trimmed;
 }
 
+function isStaticHost() {
+  return window.location.hostname.includes('github.io') || window.location.protocol === 'file:';
+}
+
 function getPlayableUrl(track) {
   if (track.blobUrl) return track.blobUrl;
   if (track.source === 'demo') return getDemoSynthesizedWavUrl();
   if (track.driveFileId) {
+    if (isStaticHost()) {
+      if (state.settings.driveApiKey) {
+        return `https://www.googleapis.com/drive/v3/files/${encodeURIComponent(track.driveFileId)}?alt=media&key=${encodeURIComponent(state.settings.driveApiKey)}`;
+      }
+      return `https://docs.google.com/uc?export=download&id=${encodeURIComponent(track.driveFileId)}`;
+    }
     const keyParam = state.settings.driveApiKey
       ? `?key=${encodeURIComponent(state.settings.driveApiKey)}`
       : '';
@@ -438,114 +448,211 @@ async function loadInitialCatalog() {
   await refreshOfflineTrackIds();
   const offlineSavedTracks = await loadOfflineStoredTracks();
 
-  const savedPasscode = sessionStorage.getItem('spotidrive_passcode') || '';
+  // 1. Cargar primero lo guardado en localStorage (funciona en GitHub Pages y Offline)
+  let localCatalog = null;
   try {
-    const resp = await fetch('/api/catalog', {
-      headers: { 'x-friend-passcode': savedPasscode }
-    });
-
-    if (resp.status === 401) {
-      document.getElementById('passcodeGate').hidden = false;
-      return;
-    }
-
-    const data = await resp.json();
-    document.getElementById('passcodeGate').hidden = true;
-
-    if (data.settings) {
-      state.settings = { ...state.settings, ...data.settings };
-      document.getElementById('sidebarAppName').innerHTML = `${escapeHtml(state.settings.appName || 'SpotiDrive 5TB')}`;
-      document.getElementById('inputAppName').value = state.settings.appName || 'SpotiDrive 5TB';
-      document.getElementById('inputDriveFolder').value = state.settings.driveFolderId || '';
-      if (state.settings.driveFolderId) {
-        document.getElementById('driveBtnLabel').textContent = 'Google Drive Conectado ✓';
-      }
-    }
-
-    const serverTracks = Array.isArray(data.tracks) ? data.tracks : [];
-    const serverPlaylists = Array.isArray(data.playlists) && data.playlists.length > 0 ? data.playlists : state.playlists;
-
-    state.playlists = serverPlaylists;
-
-    // Combinar canciones del servidor + canciones guardadas en modo Offline + canciones Demo si está vacío
-    const mergedMap = new Map();
-    for (const t of serverTracks) mergedMap.set(t.id, t);
-    for (const t of offlineSavedTracks) {
-      if (!mergedMap.has(t.id)) mergedMap.set(t.id, t);
-    }
-
-    if (mergedMap.size === 0) {
-      for (const d of DEMO_TRACKS) mergedMap.set(d.id, d);
-    }
-
-    state.tracks = Array.from(mergedMap.values());
+    const rawLocal = localStorage.getItem('spotidrive_catalog_v1');
+    if (rawLocal) localCatalog = JSON.parse(rawLocal);
   } catch {
-    // Modo 100% Offline o sin servidor activo
-    state.tracks = offlineSavedTracks.length > 0 ? offlineSavedTracks : [...DEMO_TRACKS];
+    localCatalog = null;
   }
 
-  // Verificar si el link compartido por un amigo apunta a una vista o playlist específica
-  const params = new URLSearchParams(window.location.search);
-  const sharedView = params.get('view');
-  if (sharedView) {
-    state.currentView = sharedView;
+  if (localCatalog) {
+    if (localCatalog.settings) state.settings = { ...state.settings, ...localCatalog.settings };
+    if (Array.isArray(localCatalog.playlists) && localCatalog.playlists.length > 0) {
+      state.playlists = localCatalog.playlists;
+    }
+    if (Array.isArray(localCatalog.tracks) && localCatalog.tracks.length > 0) {
+      state.tracks = localCatalog.tracks;
+    }
   }
+
+  // 2. Leer parámetros compartidos en el Link (para que tus amigos en GitHub Pages reciban tu carpeta de Drive automáticamente)
+  const params = new URLSearchParams(window.location.search);
+  const sharedFolder = params.get('folder');
+  const sharedKey = params.get('k');
+  const sharedAppName = params.get('app');
+  const sharedView = params.get('view');
+
+  if (sharedFolder) state.settings.driveFolderId = sharedFolder;
+  if (sharedKey) {
+    try {
+      state.settings.driveApiKey = atob(sharedKey);
+    } catch {
+      state.settings.driveApiKey = sharedKey;
+    }
+  }
+  if (sharedAppName) state.settings.appName = sharedAppName;
+  if (sharedView) state.currentView = sharedView;
+
+  // 3. Si estamos en servidor local, sincronizar también con /api/catalog
+  if (!isStaticHost()) {
+    const savedPasscode = sessionStorage.getItem('spotidrive_passcode') || '';
+    try {
+      const resp = await fetch('/api/catalog', {
+        headers: { 'x-friend-passcode': savedPasscode }
+      });
+
+      if (resp.status === 401) {
+        document.getElementById('passcodeGate').hidden = false;
+        return;
+      }
+
+      if (resp.ok) {
+        const data = await resp.json();
+        document.getElementById('passcodeGate').hidden = true;
+        if (data.settings && data.settings.driveFolderId) {
+          state.settings = { ...state.settings, ...data.settings };
+        }
+        if (Array.isArray(data.playlists) && data.playlists.length > 0) {
+          state.playlists = data.playlists;
+        }
+        if (Array.isArray(data.tracks) && data.tracks.length > 0) {
+          state.tracks = data.tracks;
+        }
+      }
+    } catch {
+      // Sin backend activo (ej. GitHub Pages)
+    }
+  }
+
+  // Actualizar UI de configuración
+  document.getElementById('sidebarAppName').innerHTML = `${escapeHtml(state.settings.appName || 'SpotiDrive 5TB')}`;
+  document.getElementById('inputAppName').value = state.settings.appName || 'SpotiDrive 5TB';
+  document.getElementById('inputDriveFolder').value = state.settings.driveFolderId || '';
+  if (state.settings.driveFolderId) {
+    document.getElementById('driveBtnLabel').textContent = 'Google Drive Conectado ✓';
+  }
+
+  // Combinar canciones con modo Offline + Demo si está vacío
+  const mergedMap = new Map();
+  for (const t of state.tracks) mergedMap.set(t.id, t);
+  for (const t of offlineSavedTracks) {
+    if (!mergedMap.has(t.id)) mergedMap.set(t.id, t);
+  }
+  if (mergedMap.size === 0) {
+    for (const d of DEMO_TRACKS) mergedMap.set(d.id, d);
+  }
+  state.tracks = Array.from(mergedMap.values());
 
   renderAll();
+
+  // Si un amigo entró con link compartido de carpeta de Drive y aún no tiene las canciones cargadas, sincronizar automáticamente
+  if (sharedFolder && state.settings.driveApiKey && state.tracks.every((t) => t.source === 'demo')) {
+    syncGoogleDriveFolder();
+  }
 }
 
 async function persistCatalogToServer() {
-  try {
-    // Solo enviamos metadatos serializables al servidor (para que los amigos vean la biblioteca)
-    const cleanTracks = state.tracks.map((t) => ({
-      id: t.id,
-      title: t.title,
-      artist: t.artist,
-      album: t.album,
-      cover: t.cover && t.cover.length < 150000 ? t.cover : DEFAULT_COVER,
-      driveFileId: t.driveFileId || '',
-      streamUrl: t.streamUrl || '',
-      source: t.source || 'cloud',
-      playlistId: t.playlistId || '',
-      lyrics: t.lyrics || ''
-    }));
+  const cleanTracks = state.tracks.map((t) => ({
+    id: t.id,
+    title: t.title,
+    artist: t.artist,
+    album: t.album,
+    cover: t.cover && t.cover.length < 150000 ? t.cover : DEFAULT_COVER,
+    driveFileId: t.driveFileId || '',
+    streamUrl: t.streamUrl || '',
+    source: t.source || 'cloud',
+    playlistId: t.playlistId || '',
+    lyrics: t.lyrics || ''
+  }));
 
-    await fetch('/api/catalog', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        settings: state.settings,
-        tracks: cleanTracks,
-        playlists: state.playlists
-      })
-    });
+  const payload = {
+    settings: state.settings,
+    tracks: cleanTracks,
+    playlists: state.playlists
+  };
+
+  try {
+    localStorage.setItem('spotidrive_catalog_v1', JSON.stringify(payload));
   } catch {
-    // Guardado silencioso si está offline
+    // Cuota de localStorage llena
   }
+
+  if (!isStaticHost()) {
+    try {
+      await fetch('/api/catalog', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify(payload)
+      });
+    } catch {
+      // Guardado silencioso en modo estático/offline
+    }
+  }
+}
+
+function isDriveAudioFile(file) {
+  const mime = (file.mimeType || '').toLowerCase();
+  const name = (file.name || '').toLowerCase();
+  return (
+    mime.startsWith('audio/') ||
+    name.endsWith('.mp3') ||
+    name.endsWith('.flac') ||
+    name.endsWith('.wav') ||
+    name.endsWith('.m4a') ||
+    name.endsWith('.ogg') ||
+    name.endsWith('.aac')
+  );
+}
+
+async function fetchDriveFolderDirectFromBrowser(folderId, apiKey) {
+  const fields = encodeURIComponent('files(id,name,mimeType,size,thumbnailLink)');
+  const qMain = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
+  const mainUrl = `https://www.googleapis.com/drive/v3/files?q=${qMain}&fields=${fields}&pageSize=500&key=${encodeURIComponent(apiKey)}`;
+
+  const resp = await fetch(mainUrl);
+  const data = await resp.json();
+  if (!resp.ok || data.error) {
+    throw new Error((data.error && data.error.message) || 'Error consultando Google Drive API');
+  }
+
+  const audioFiles = [];
+  const subfolders = [];
+
+  for (const f of data.files || []) {
+    if (f.mimeType === 'application/vnd.google-apps.folder') {
+      subfolders.push(f);
+    } else if (isDriveAudioFile(f)) {
+      audioFiles.push({ ...f, folderName: 'Biblioteca Principal' });
+    }
+  }
+
+  for (const sub of subfolders.slice(0, 10)) {
+    const qSub = encodeURIComponent(`'${sub.id}' in parents and trashed = false`);
+    const subUrl = `https://www.googleapis.com/drive/v3/files?q=${qSub}&fields=${fields}&pageSize=300&key=${encodeURIComponent(apiKey)}`;
+    try {
+      const subResp = await fetch(subUrl);
+      const subData = await subResp.json();
+      for (const sf of subData.files || []) {
+        if (isDriveAudioFile(sf)) {
+          audioFiles.push({ ...sf, folderName: sub.name, folderId: sub.id });
+        }
+      }
+    } catch {
+      // Ignorar subcarpeta con error
+    }
+  }
+
+  return audioFiles;
 }
 
 async function syncGoogleDriveFolder() {
   const folderId = extractDriveId(state.settings.driveFolderId);
   const apiKey = state.settings.driveApiKey;
 
-  if (!folderId) {
+  if (!folderId || !apiKey) {
     document.getElementById('driveModal').showModal();
-    showToast('☁️ Configura primero el link de tu carpeta de Google Drive');
+    showToast('☁️ Ingresa el Link de tu carpeta de Drive y tu API Key para sincronizar');
     return;
   }
 
   showToast('🔄 Escaneando tu carpeta de Google Drive (5 TB)...');
 
   try {
-    const url = `/api/drive/sync?folderId=${encodeURIComponent(folderId)}&apiKey=${encodeURIComponent(apiKey || '')}`;
-    const resp = await fetch(url);
-    const data = await resp.json();
+    // Llamamos directamente a la API oficial de Google Drive desde el navegador (funciona en GitHub Pages y en Local)
+    const driveFiles = await fetchDriveFolderDirectFromBrowser(folderId, apiKey);
 
-    if (!resp.ok || data.error) {
-      throw new Error(data.error || 'Verifica tu Folder ID y Google Drive API Key');
-    }
-
-    const driveFiles = data.files || [];
     if (driveFiles.length === 0) {
       showToast('ℹ️ No se encontraron archivos MP3/FLAC/WAV en esa carpeta de Drive.');
       return;
@@ -1143,7 +1250,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
   // Registrar Service Worker para instalación en Celular y Laptop (PWA)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('/sw.js').catch(() => {});
+    navigator.serviceWorker.register('./sw.js').catch(() => {});
   }
 
   window.addEventListener('beforeinstallprompt', (e) => {
@@ -1287,9 +1394,22 @@ window.addEventListener('DOMContentLoaded', () => {
 
   document.getElementById('btnSyncNow').addEventListener('click', syncGoogleDriveFolder);
 
-  // Compartir con amigos
+  // Compartir con amigos (Incluye automáticamente la carpeta de Drive para funcionar en GitHub Pages)
   const openShareModal = () => {
     const shareUrl = new URL(window.location.href);
+    if (state.settings.driveFolderId) {
+      shareUrl.searchParams.set('folder', state.settings.driveFolderId);
+    }
+    if (state.settings.driveApiKey) {
+      try {
+        shareUrl.searchParams.set('k', btoa(state.settings.driveApiKey));
+      } catch {
+        // Ignore encoding error
+      }
+    }
+    if (state.settings.appName && state.settings.appName !== 'SpotiDrive 5TB') {
+      shareUrl.searchParams.set('app', state.settings.appName);
+    }
     if (state.currentView.startsWith('playlist:')) {
       shareUrl.searchParams.set('view', state.currentView);
     } else {

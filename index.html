@@ -1,0 +1,445 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="theme-color" content="#121212" />
+  <title>SpotiDrive 5TB — Tu Spotify en Google Drive</title>
+  <link rel="manifest" href="./manifest.json" />
+  <link rel="stylesheet" href="./styles.css" />
+</head>
+<body>
+  <!-- Pantalla de bloqueo opcional para amigos (si el dueño activa código de invitación) -->
+  <div id="passcodeGate" class="passcode-gate" hidden>
+    <div class="passcode-card">
+      <div class="brand-logo large">
+        <span class="logo-dot"></span>
+        <span>SpotiDrive <strong>5TB</strong></span>
+      </div>
+      <h2>Bienvenido a la Biblioteca Compartida</h2>
+      <p>Ingresa el código de invitación para escuchar y descargar las playlists.</p>
+      <form id="passcodeForm">
+        <label for="friendPasscodeInput" class="sr-only">Código de invitación</label>
+        <input type="password" id="friendPasscodeInput" placeholder="Código de acceso..." required autocomplete="off" />
+        <button type="submit" class="btn-primary full-width">Entrar a Escuchar</button>
+      </form>
+      <p id="passcodeError" class="error-msg" hidden>Código incorrecto. Pídele el código al creador.</p>
+    </div>
+  </div>
+
+  <!-- Layout Principal estilo Spotify (Desktop + Mobile) -->
+  <div class="app-shell">
+    <!-- Barra Lateral Izquierda (En móvil se integra con la navegación inferior) -->
+    <aside class="sidebar" aria-label="Navegación principal">
+      <div class="sidebar-top card-panel">
+        <div class="brand-header">
+          <div class="brand-logo">
+            <svg viewBox="0 0 24 24" width="28" height="28" aria-hidden="true" fill="#1db954">
+              <path d="M12 0C5.4 0 0 5.4 0 12s5.4 12 12 12 12-5.4 12-12S18.66 0 12 0zm5.521 17.34c-.24.359-.66.48-1.021.24-2.82-1.74-6.36-2.101-10.561-1.141-.418.122-.779-.179-.899-.539-.12-.421.18-.78.54-.9 4.56-1.021 8.52-.6 11.64 1.32.42.18.479.659.301 1.02zm1.44-3.3c-.301.42-.841.6-1.262.3-3.239-1.98-8.159-2.58-11.939-1.38-.479.12-1.02-.12-1.14-.6-.12-.48.12-1.021.6-1.141C9.6 9.9 15 10.561 18.72 12.84c.361.181.54.78.241 1.2zm.12-3.36C15.24 8.4 8.82 8.16 5.16 9.301c-.6.179-1.2-.181-1.38-.721-.18-.601.18-1.2.72-1.381 4.26-1.26 11.28-1.02 15.721 1.621.539.3.719 1.02.419 1.56-.299.421-1.02.599-1.559.3z"/>
+            </svg>
+            <span id="sidebarAppName">SpotiDrive <strong>5TB</strong></span>
+          </div>
+          <span id="networkStatusBadge" class="status-pill online" title="Estado de conexión">Online</span>
+        </div>
+
+        <nav class="main-nav">
+          <button type="button" class="nav-btn active" data-view="home">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12.5 3.247a1 1 0 0 0-1 0L4 7.577V20h4.5v-6a1 1 0 0 1 1-1h5a1 1 0 0 1 1 1v6H20V7.577l-7.5-4.33zm-2-1.732a3 3 0 0 1 3 0l7.5 4.33a2 2 0 0 1 1 1.732V21a1 1 0 0 1-1 1h-6.5a1 1 0 0 1-1-1v-6h-3v6a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1V7.577a2 2 0 0 1 1-1.732l7.5-4.33z"/></svg>
+            <span>Inicio</span>
+          </button>
+          <button type="button" class="nav-btn" data-view="favorites">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <span>Tus Me Gusta</span>
+          </button>
+          <button type="button" class="nav-btn" data-view="offline">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 14H9V8h2v8zm4 0h-2V8h2v8z"/><path d="M19 9h-4V3H9v6H5l7 7 7-7zM5 18v2h14v-2H5z"/></svg>
+            <span>Modo Offline</span>
+            <span id="offlineCountBadge" class="badge-pill">0</span>
+          </button>
+          <button type="button" class="nav-btn" data-view="lyrics">
+            <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M12 14c1.66 0 3-1.34 3-3V5c0-1.66-1.34-3-3-3S9 3.34 9 5v6c0 1.66 1.34 3 3 3zm5.91-3c-.49 0-.9.36-.98.85C16.52 14.2 14.47 16 12 16s-4.52-1.8-4.93-4.15c-.08-.49-.49-.85-.98-.85-.61 0-1.09.54-1 1.14.49 3 2.89 5.35 5.91 5.78V20c0 .55.45 1 1 1s1-.45 1-1v-2.08c3.02-.43 5.42-2.78 5.91-5.78.1-.6-.39-1.14-1-1.14z"/></svg>
+            <span>Letras Karaoke</span>
+          </button>
+        </nav>
+      </div>
+
+      <!-- Tu Biblioteca & Playlists -->
+      <div class="sidebar-library card-panel scroller">
+        <div class="library-header">
+          <div class="library-title">
+            <svg viewBox="0 0 24 24" width="20" height="20" aria-hidden="true" fill="currentColor"><path d="M3 22a1 1 0 0 1-1-1V3a1 1 0 0 1 2 0v18a1 1 0 0 1-1 1zM15.5 2.134A1 1 0 0 0 14 3v18a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V6.464a1 1 0 0 0-.5-.866l-6-3.464zM9 2a1 1 0 0 0-1 1v18a1 1 0 1 0 2 0V3a1 1 0 0 0-1-1z"/></svg>
+            <span>Tu Biblioteca</span>
+          </div>
+          <div class="library-actions">
+            <button type="button" id="btnNewPlaylist" class="icon-btn" title="Crear nueva Playlist" aria-label="Crear nueva Playlist">+</button>
+          </div>
+        </div>
+
+        <!-- Acciones rápidas de Google Drive y Subida -->
+        <div class="quick-drive-box">
+          <button type="button" id="btnOpenDriveModal" class="drive-connect-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M7.71 3.5L1.15 15l3.43 6 6.55-11.5L7.71 3.5zm1.72 0l6.56 11.5H22.8L16.29 3.5H9.43zm6.05 12.5H2.5l3.43 5h13.02l-3.47-5z"/></svg>
+            <span id="driveBtnLabel">Conectar Google Drive (5TB)</span>
+          </button>
+          <button type="button" id="btnOpenUploadModal" class="upload-tracks-btn">
+            <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M9 16h6v-6h4l-7-7-7 7h4zm-4 2h14v2H5z"/></svg>
+            <span>Agregar / Subir Canciones</span>
+          </button>
+        </div>
+
+        <div class="playlists-section-label">Playlists & Carpetas Drive</div>
+        <ul id="playlistSidebarList" class="playlist-list">
+          <!-- Renderizado dinámico de playlists -->
+        </ul>
+      </div>
+    </aside>
+
+    <!-- Área Central Principal -->
+    <main class="main-content card-panel scroller" id="mainScrollArea">
+      <!-- Barra Superior (Buscador + Botones de Compartir y Sincronizar) -->
+      <header class="topbar">
+        <div class="search-wrapper">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor" class="search-icon"><path d="M10.533 1.279c-5.18 0-9.407 4.14-9.407 9.279s4.226 9.279 9.407 9.279c2.234 0 4.29-.77 5.907-2.058l4.353 4.353a1 1 0 1 0 1.414-1.414l-4.344-4.344a9.157 9.157 0 0 0 2.077-5.816c0-5.14-4.226-9.28-9.407-9.28zm-7.407 9.279c0-4.006 3.302-7.28 7.407-7.28s7.407 3.274 7.407 7.28-3.302 7.279-7.407 7.279-7.407-3.273-7.407-7.28z"/></svg>
+          <label for="searchInput" class="sr-only">Buscar canciones, artistas o álbumes</label>
+          <input type="search" id="searchInput" placeholder="¿Qué quieres reproducir hoy? (Canción, artista, carpeta...)" autocomplete="off" />
+        </div>
+
+        <div class="topbar-actions">
+          <button type="button" id="btnSyncNow" class="btn-chip" title="Escanear cambios en tu carpeta de Google Drive">
+            <span>🔄 Sincronizar Drive</span>
+          </button>
+          <button type="button" id="btnShareFriends" class="btn-chip accent" title="Compartir biblioteca o playlist con tus amigos">
+            <span>🔗 Compartir con Amigos</span>
+          </button>
+          <button type="button" id="btnInstallPwa" class="btn-chip" hidden title="Instalar como aplicación en tu celular o laptop">
+            <span>📲 Instalar App</span>
+          </button>
+        </div>
+      </header>
+
+      <!-- Banner Hero de la Vista Actual -->
+      <section class="hero-banner" id="heroBanner">
+        <div class="hero-cover" id="heroCover">
+          <svg viewBox="0 0 24 24" width="54" height="54" aria-hidden="true" fill="currentColor"><path d="M12 3v10.55c-.59-.34-1.27-.55-2-.55-2.21 0-4 1.79-4 4s1.79 4 4 4 4-1.79 4-4V7h4V3h-6z"/></svg>
+        </div>
+        <div class="hero-info">
+          <span class="hero-badge" id="heroTypeBadge">CATÁLOGO EN LA NUBE & OFFLINE</span>
+          <h1 id="heroTitle">Todas tus Canciones</h1>
+          <p id="heroSubtitle">Conectado a Google Drive (5 TB) • Streaming directo, descargas offline y letras sincronizadas</p>
+          <div class="hero-actions">
+            <button type="button" id="btnPlayAll" class="btn-play-hero">
+              <svg viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+              <span>Reproducir Todo</span>
+            </button>
+            <button type="button" id="btnDownloadAllOffline" class="btn-secondary-hero" title="Guardar toda esta lista para escuchar sin internet">
+              <span>⬇️ Guardar Lista Offline</span>
+            </button>
+            <button type="button" id="btnShareCurrentView" class="btn-secondary-hero" title="Copiar link de esta lista para tus amigos">
+              <span>🔗 Compartir Lista</span>
+            </button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Vista Estándar: Lista de Canciones -->
+      <section id="tracksViewSection" class="tracks-section" aria-label="Lista de canciones">
+        <div class="tracks-table-header">
+          <span class="col-num">#</span>
+          <span class="col-title">Título / Artista</span>
+          <span class="col-album">Álbum / Carpeta Drive</span>
+          <span class="col-status">Estado</span>
+          <span class="col-actions">Acciones</span>
+        </div>
+        <div id="tracksContainer" class="tracks-list">
+          <!-- Canciones renderizadas dinámicamente -->
+        </div>
+      </section>
+
+      <!-- Vista Especial: Letras Sincronizadas (Estilo Spotify Karaoke) -->
+      <section id="lyricsViewSection" class="lyrics-section" hidden aria-label="Letras sincronizadas">
+        <div class="lyrics-header">
+          <div>
+            <h2 id="lyricsTrackTitle">Selecciona una canción</h2>
+            <p id="lyricsTrackArtist">Las letras se sincronizan automáticamente con el tiempo de la canción</p>
+          </div>
+          <div class="lyrics-toolbar">
+            <button type="button" id="btnSearchLyricsAgain" class="btn-chip">🔍 Buscar Letra Automática</button>
+            <button type="button" id="btnEditCustomLyrics" class="btn-chip">✏️ Pegar / Editar Letra (.LRC)</button>
+          </div>
+        </div>
+        <div id="lyricsLinesContainer" class="lyrics-container scroller">
+          <p class="lyrics-placeholder">Reproduce cualquier canción y abre esta pestaña para disfrutar del modo Karaoke sincronizado.</p>
+        </div>
+      </section>
+    </main>
+  </div>
+
+  <!-- Barra de Reproducción Inferior (Fija en Desktop y Mobile) -->
+  <footer class="player-bar" aria-label="Controles de reproducción">
+    <!-- Canción Actual -->
+    <div class="player-track-info">
+      <div class="player-cover-wrapper">
+        <img id="playerCover" src="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><rect width='100' height='100' fill='%23282828'/><text x='50' y='58' font-size='40' text-anchor='middle' fill='%231db954'>♪</text></svg>" alt="Portada del álbum" />
+      </div>
+      <div class="player-meta">
+        <div id="playerTitle" class="player-title">Listo para reproducir</div>
+        <div id="playerArtist" class="player-artist">Selecciona una canción o sube tus MP3/FLAC</div>
+      </div>
+      <button type="button" id="btnLikeCurrent" class="icon-btn" title="Guardar en Tus Me Gusta" aria-label="Me gusta">
+        ♥
+      </button>
+      <button type="button" id="btnOfflineCurrent" class="icon-btn" title="Guardar canción para escuchar sin internet" aria-label="Descargar canción offline">
+        ⬇️
+      </button>
+    </div>
+
+    <!-- Controles Centrales + Barra de Progreso -->
+    <div class="player-controls-center">
+      <div class="player-buttons">
+        <button type="button" id="btnShuffle" class="control-btn" title="Aleatorio" aria-label="Modo aleatorio">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M10.59 9.17L5.41 4 4 5.41l5.17 5.17 1.42-1.41zM14.5 4l2.04 2.04L4 18.59 5.41 20 17.96 7.46 20 9.5V4h-5.5zm.33 9.41l-1.41 1.41 3.13 3.13L14.5 20H20v-5.5l-2.04 2.04-3.13-3.13z"/></svg>
+        </button>
+        <button type="button" id="btnPrev" class="control-btn" title="Anterior" aria-label="Canción anterior">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+        </button>
+        <button type="button" id="btnPlayPause" class="play-pause-btn" title="Reproducir / Pausar" aria-label="Reproducir o pausar">
+          <svg id="iconPlay" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor"><path d="M8 5v14l11-7z"/></svg>
+          <svg id="iconPause" viewBox="0 0 24 24" width="24" height="24" aria-hidden="true" fill="currentColor" hidden><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+        </button>
+        <button type="button" id="btnNext" class="control-btn" title="Siguiente" aria-label="Siguiente canción">
+          <svg viewBox="0 0 24 24" width="22" height="22" aria-hidden="true" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+        </button>
+        <button type="button" id="btnRepeat" class="control-btn" title="Repetir" aria-label="Modo repetir">
+          <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true" fill="currentColor"><path d="M7 7h10v3l4-4-4-4v3H5v6h2V7zm10 10H7v-3l-4 4 4 4v-3h12v-6h-2v4z"/></svg>
+        </button>
+      </div>
+
+      <div class="progress-bar-row">
+        <span id="currentTimeLabel" class="time-label">0:00</span>
+        <label for="seekSlider" class="sr-only">Progreso de la canción</label>
+        <input type="range" id="seekSlider" min="0" max="100" step="0.1" value="0" />
+        <span id="totalTimeLabel" class="time-label">0:00</span>
+      </div>
+    </div>
+
+    <!-- Controles Derechos (Karaoke, Volumen) -->
+    <div class="player-controls-right">
+      <button type="button" id="btnToggleLyricsBar" class="icon-btn" title="Ver letras sincronizadas (Karaoke)" aria-label="Ver letras sincronizadas">
+        🎤
+      </button>
+      <div class="volume-control">
+        <button type="button" id="btnMute" class="icon-btn" title="Silenciar / Activar sonido" aria-label="Silenciar">
+          🔊
+        </button>
+        <label for="volumeSlider" class="sr-only">Volumen</label>
+        <input type="range" id="volumeSlider" min="0" max="100" step="1" value="85" />
+      </div>
+    </div>
+  </footer>
+
+  <!-- Barra de Navegación Inferior exclusiva para Celulares -->
+  <nav class="mobile-bottom-nav" aria-label="Navegación móvil">
+    <button type="button" class="mob-nav-btn active" data-view="home">
+      <span>🏠</span>
+      <small>Inicio</small>
+    </button>
+    <button type="button" class="mob-nav-btn" data-view="favorites">
+      <span>❤️</span>
+      <small>Me Gusta</small>
+    </button>
+    <button type="button" class="mob-nav-btn" data-view="offline">
+      <span>⬇️</span>
+      <small>Offline</small>
+    </button>
+    <button type="button" class="mob-nav-btn" data-view="lyrics">
+      <span>🎤</span>
+      <small>Karaoke</small>
+    </button>
+    <button type="button" id="btnMobileDrive" class="mob-nav-btn">
+      <span>☁️</span>
+      <small>Drive 5TB</small>
+    </button>
+  </nav>
+
+  <!-- Reproductor HTML5 oculto -->
+  <audio id="audioElement" preload="metadata"></audio>
+
+  <!-- =====================================================================
+       MODALES NATIVOS (<dialog closedby="any">)
+       ===================================================================== -->
+
+  <!-- 1. Modal: Conectar Google Drive (5 TB) y Configurar Acceso -->
+  <dialog id="driveModal" closedby="any" aria-labelledby="driveModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="driveModalTitle">☁️ Configurar Google Drive (5 TB)</h2>
+        <button type="button" class="close-modal-btn" data-close-dialog="driveModal" aria-label="Cerrar ventana">✕</button>
+      </div>
+      <p class="modal-desc">
+        Conecta tu carpeta de música de Google Drive. Cualquier archivo <code>.mp3</code>, <code>.flac</code>, <code>.wav</code> o <code>.m4a</code> dentro de esa carpeta (y sus subcarpetas) aparecerá automáticamente para ti y tus amigos.
+      </p>
+
+      <form id="driveConfigForm" class="modal-form">
+        <div class="form-group">
+          <label for="inputAppName">Nombre de tu Plataforma (Lo verán tus amigos)</label>
+          <input type="text" id="inputAppName" placeholder="Ej: Radio & Música de Amigos" value="SpotiDrive 5TB" autofocus />
+        </div>
+
+        <div class="form-group">
+          <label for="inputDriveFolder">Link o ID de tu Carpeta de Google Drive</label>
+          <input type="text" id="inputDriveFolder" placeholder="Pega el link: https://drive.google.com/drive/folders/1A2B3C..." />
+          <small class="form-help">Asegúrate de que la carpeta en Drive tenga permiso: <strong>"Cualquier persona con el enlace puede ver"</strong>.</small>
+        </div>
+
+        <div class="form-group">
+          <label for="inputDriveApiKey">Google Drive API Key (Para escanear carpetas automáticamente)</label>
+          <input type="password" id="inputDriveApiKey" placeholder="AIzaSy..." autocomplete="off" />
+          <small class="form-help">
+            Se crea gratis en 1 minuto en <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a> habilitando "Google Drive API". También puedes pegar links individuales de archivos de Drive sin necesidad de API Key en el botón "Agregar Canciones".
+          </small>
+        </div>
+
+        <div class="form-group">
+          <label for="inputFriendPasscode">Contraseña simple para amigos (Opcional)</label>
+          <input type="text" id="inputFriendPasscode" placeholder="Déjalo vacío para acceso directo sin contraseña" />
+        </div>
+
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close-dialog="driveModal">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar y Sincronizar Carpeta</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 2. Modal: Subir / Agregar Canciones (Local, Carpeta o Link de Google Drive) -->
+  <dialog id="uploadModal" closedby="any" aria-labelledby="uploadModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="uploadModalTitle">🎵 Agregar Canciones a tu Biblioteca</h2>
+        <button type="button" class="close-modal-btn" data-close-dialog="uploadModal" aria-label="Cerrar ventana">✕</button>
+      </div>
+
+      <div class="upload-tabs">
+        <!-- Opción A: Seleccionar archivos MP3/FLAC desde tu Laptop o Celular -->
+        <div class="upload-dropzone" id="dropzoneArea">
+          <svg viewBox="0 0 24 24" width="44" height="44" aria-hidden="true" fill="#1db954"><path d="M19.35 10.04C18.67 6.59 15.64 4 12 4 9.11 4 6.6 5.64 5.35 8.04 2.34 8.36 0 10.91 0 14c0 3.31 2.69 6 6 6h13c2.76 0 5-2.24 5-5 0-2.64-2.05-4.78-4.65-4.96zM14 13v4h-4v-4H7l5-5 5 5h-3z"/></svg>
+          <h3>Arrastra tus canciones aquí o selecciónalas</h3>
+          <p>Extraemos automáticamente <strong>Portada original, Artista, Álbum y Título (ID3)</strong> y las guardamos listas para sonar online y offline.</p>
+          <div class="upload-btn-group">
+            <label for="fileInputTracks" class="btn-primary file-label">Seleccionar Archivos (.MP3, .FLAC, .WAV)</label>
+            <input type="file" id="fileInputTracks" accept="audio/*,.mp3,.flac,.wav,.m4a,.ogg" multiple hidden />
+            <label for="folderInputTracks" class="btn-secondary-hero file-label">📂 Cargar Carpeta Completa</label>
+            <input type="file" id="folderInputTracks" webkitdirectory directory multiple hidden />
+          </div>
+        </div>
+
+        <hr class="divider" />
+
+        <!-- Opción B: Agregar por Link directo de archivo de Google Drive -->
+        <form id="addDriveFileForm" class="modal-form">
+          <h3>🔗 O pega un enlace de canción desde tu Google Drive</h3>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="driveSongTitle">Título de la Canción</label>
+              <input type="text" id="driveSongTitle" placeholder="Ej: Blinding Lights" required />
+            </div>
+            <div class="form-group">
+              <label for="driveSongArtist">Artista</label>
+              <input type="text" id="driveSongArtist" placeholder="Ej: The Weeknd" required />
+            </div>
+          </div>
+          <div class="form-row-2">
+            <div class="form-group">
+              <label for="driveSongUrl">Enlace de compartir de Google Drive (o URL de audio)</label>
+              <input type="url" id="driveSongUrl" placeholder="https://drive.google.com/file/d/1ABC.../view" required />
+            </div>
+            <div class="form-group">
+              <label for="driveSongPlaylist">Playlist / Álbum</label>
+              <input type="text" id="driveSongPlaylist" placeholder="Ej: Favoritas 2026" />
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="submit" class="btn-primary">Agregar Canción de Drive</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 3. Modal: Crear Nueva Playlist -->
+  <dialog id="playlistModal" closedby="any" aria-labelledby="playlistModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="playlistModalTitle">➕ Crear Nueva Playlist</h2>
+        <button type="button" class="close-modal-btn" data-close-dialog="playlistModal" aria-label="Cerrar ventana">✕</button>
+      </div>
+      <form id="createPlaylistForm" class="modal-form">
+        <div class="form-group">
+          <label for="newPlaylistName">Nombre de la Playlist</label>
+          <input type="text" id="newPlaylistName" placeholder="Ej: Previa con Amigos 🔥" required autofocus />
+        </div>
+        <div class="form-group">
+          <label for="newPlaylistDesc">Descripción (Opcional)</label>
+          <input type="text" id="newPlaylistDesc" placeholder="Las mejores canciones para el fin de semana" />
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close-dialog="playlistModal">Cancelar</button>
+          <button type="submit" class="btn-primary">Crear Playlist</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- 4. Modal: Compartir con Amigos -->
+  <dialog id="shareModal" closedby="any" aria-labelledby="shareModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="shareModalTitle">🔗 Compartir con Amigos</h2>
+        <button type="button" class="close-modal-btn" data-close-dialog="shareModal" aria-label="Cerrar ventana">✕</button>
+      </div>
+      <p class="modal-desc">
+        Envía este enlace a tus amigos por WhatsApp, Discord o Telegram. Ellos podrán abrirlo desde su celular o laptop, escuchar en streaming desde tu Google Drive y descargar canciones en modo offline.
+      </p>
+      <div class="share-box">
+        <label for="shareLinkOutput" class="sr-only">Enlace para compartir</label>
+        <input type="text" id="shareLinkOutput" readonly />
+        <button type="button" id="btnCopyShareLink" class="btn-primary">Copiar Link</button>
+      </div>
+      <div class="share-tips">
+        <p>💡 <strong>Tip para usar desde fuera de tu casa:</strong></p>
+        <ul>
+          <li>En la misma red Wi-Fi: Tus amigos pueden entrar usando la IP local de tu laptop.</li>
+          <li>Desde cualquier parte del mundo: Puedes subir este proyecto gratis a <strong>Render.com</strong>, <strong>Railway</strong> o usar <code>npx localtunnel --port 3000</code> para generar un link público instantáneo.</li>
+        </ul>
+      </div>
+    </div>
+  </dialog>
+
+  <!-- 5. Modal: Editar Letra Sincronizada (.LRC) -->
+  <dialog id="lyricsEditModal" closedby="any" aria-labelledby="lyricsEditModalTitle">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h2 id="lyricsEditModalTitle">🎤 Pegar o Editar Letra (.LRC o Texto)</h2>
+        <button type="button" class="close-modal-btn" data-close-dialog="lyricsEditModal" aria-label="Cerrar ventana">✕</button>
+      </div>
+      <form id="customLyricsForm" class="modal-form">
+        <div class="form-group">
+          <label for="customLyricsTextarea">Letra de la canción (Soporta formato sincronizado <code>[00:15.20] Letra</code> o texto normal)</label>
+          <textarea id="customLyricsTextarea" rows="10" placeholder="[00:05.00] Primera línea de la canción&#10;[00:10.50] Segunda línea sincronizada..."></textarea>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn-ghost" data-close-dialog="lyricsEditModal">Cancelar</button>
+          <button type="submit" class="btn-primary">Guardar Letra</button>
+        </div>
+      </form>
+    </div>
+  </dialog>
+
+  <!-- Notificación Toast -->
+  <div id="toastNotification" class="toast" role="status" aria-live="polite" hidden></div>
+
+  <script src="./app.js"></script>
+</body>
+</html>
+

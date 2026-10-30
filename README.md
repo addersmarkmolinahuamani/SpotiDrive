@@ -54,3 +54,4 @@ Mira la dirección IP de tu laptop (ejecutando `ipconfig` en Windows, por ejempl
   Te dará un link `https://....loca.lt` que puedes mandar por WhatsApp a tus amigos al instante.
 - **24/7 en la Nube sin tener tu laptop encendida:**
   Conecta este repositorio (`SpotiDrive`) gratis en **Render.com** o **Railway.app**. Como toda la música pesada vive en tus **5 TB de Google Drive**, el servidor web no gasta almacenamiento.
+

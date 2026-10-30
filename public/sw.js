@@ -1,10 +1,10 @@
-const CACHE_NAME = 'spotidrive-v1';
+const CACHE_NAME = 'spotidrive-v2';
 const ASSETS = [
-  '/',
-  '/index.html',
-  '/styles.css',
-  '/app.js',
-  '/manifest.json'
+  './',
+  './index.html',
+  './styles.css',
+  './app.js',
+  './manifest.json'
 ];
 
 self.addEventListener('install', (event) => {
@@ -26,7 +26,7 @@ self.addEventListener('activate', (event) => {
 self.addEventListener('fetch', (event) => {
   const { request } = event;
   if (request.method !== 'GET') return;
-  if (request.url.includes('/api/drive/stream/')) return;
+  if (request.url.includes('/api/drive/stream/') || request.url.includes('googleapis.com')) return;
 
   event.respondWith(
     fetch(request)
@@ -37,7 +37,6 @@ self.addEventListener('fetch', (event) => {
         }
         return response;
       })
-      .catch(() => caches.match(request).then((cached) => cached || caches.match('/index.html')))
+      .catch(() => caches.match(request).then((cached) => cached || caches.match('./index.html')))
   );
 });
-

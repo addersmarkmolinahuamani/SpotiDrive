@@ -2,7 +2,7 @@
   "name": "SpotiDrive 5TB — Música en la Nube & Offline",
   "short_name": "SpotiDrive",
   "description": "Reproductor musical estilo Spotify conectado a tus 5 TB de Google Drive con Modo Offline, Letras Karaoke y Playlists compartibles.",
-  "start_url": "/",
+  "start_url": "./",
   "display": "standalone",
   "background_color": "#090909",
   "theme_color": "#1db954",
