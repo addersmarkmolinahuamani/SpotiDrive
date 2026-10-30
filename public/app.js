@@ -537,8 +537,8 @@ async function loadInitialCatalog() {
 
   renderAll();
 
-  // Si un amigo entró con link compartido de carpeta de Drive y aún no tiene las canciones cargadas, sincronizar automáticamente
-  if (sharedFolder && state.settings.driveApiKey && state.tracks.every((t) => t.source === 'demo')) {
+  // Si hay carpeta de Drive configurada y solo están las demos, sincronizar automáticamente (incluso sin API Key)
+  if (state.settings.driveFolderId && state.tracks.every((t) => t.source === 'demo')) {
     syncGoogleDriveFolder();
   }
 }
@@ -596,7 +596,71 @@ function isDriveAudioFile(file) {
   );
 }
 
+function parseEmbeddedDriveHtmlInBrowser(html) {
+  const results = [];
+  const entryRegex = /id="entry-([a-zA-Z0-9_-]+)"[\s\S]*?<div class="flip-entry-title">([^<]+)<\/div>/g;
+  let match;
+  while ((match = entryRegex.exec(html)) !== null) {
+    const id = match[1];
+    const name = match[2]
+      .replace(/&amp;/g, '&')
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .trim();
+    if (isDriveAudioFile({ name, mimeType: 'audio/mpeg' })) {
+      results.push({
+        id,
+        name,
+        mimeType: 'audio/mpeg',
+        folderName: 'SpotiDrive Adders'
+      });
+    }
+  }
+  return results;
+}
+
+async function fetchPublicDriveFolderWithoutKey(folderId) {
+  // 1. Si corre en servidor local, usar el endpoint local
+  if (!isStaticHost()) {
+    try {
+      const localResp = await fetch(`/api/drive/sync?folderId=${encodeURIComponent(folderId)}`);
+      if (localResp.ok) {
+        const localData = await localResp.json();
+        if (Array.isArray(localData.files)) return localData.files;
+      }
+    } catch {
+      // Continuar a proxies públicos
+    }
+  }
+
+  // 2. En GitHub Pages (o sin backend), leer la vista pública de la carpeta de Google Drive
+  const embedUrl = `https://drive.google.com/embeddedfolderview?id=${encodeURIComponent(folderId)}#list`;
+  const proxies = [
+    `https://api.allorigins.win/raw?url=${encodeURIComponent(embedUrl)}`,
+    `https://corsproxy.io/?${encodeURIComponent(embedUrl)}`
+  ];
+
+  for (const proxyUrl of proxies) {
+    try {
+      const resp = await fetch(proxyUrl);
+      if (resp.ok) {
+        const html = await resp.text();
+        const files = parseEmbeddedDriveHtmlInBrowser(html);
+        if (files.length > 0) return files;
+      }
+    } catch {
+      // Intentar siguiente proxy
+    }
+  }
+
+  return [];
+}
+
 async function fetchDriveFolderDirectFromBrowser(folderId, apiKey) {
+  if (!apiKey) {
+    return fetchPublicDriveFolderWithoutKey(folderId);
+  }
+
   const fields = encodeURIComponent('files(id,name,mimeType,size,thumbnailLink)');
   const qMain = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
   const mainUrl = `https://www.googleapis.com/drive/v3/files?q=${qMain}&fields=${fields}&pageSize=500&key=${encodeURIComponent(apiKey)}`;
@@ -604,6 +668,9 @@ async function fetchDriveFolderDirectFromBrowser(folderId, apiKey) {
   const resp = await fetch(mainUrl);
   const data = await resp.json();
   if (!resp.ok || data.error) {
+    // Si la API key falla, intentar lectura directa pública sin API Key
+    const fallbackFiles = await fetchPublicDriveFolderWithoutKey(folderId);
+    if (fallbackFiles.length > 0) return fallbackFiles;
     throw new Error((data.error && data.error.message) || 'Error consultando Google Drive API');
   }
 
@@ -614,7 +681,7 @@ async function fetchDriveFolderDirectFromBrowser(folderId, apiKey) {
     if (f.mimeType === 'application/vnd.google-apps.folder') {
       subfolders.push(f);
     } else if (isDriveAudioFile(f)) {
-      audioFiles.push({ ...f, folderName: 'Biblioteca Principal' });
+      audioFiles.push({ ...f, folderName: 'SpotiDrive Adders' });
     }
   }
 
@@ -641,20 +708,19 @@ async function syncGoogleDriveFolder() {
   const folderId = extractDriveId(state.settings.driveFolderId);
   const apiKey = state.settings.driveApiKey;
 
-  if (!folderId || !apiKey) {
+  if (!folderId) {
     document.getElementById('driveModal').showModal();
-    showToast('☁️ Ingresa el Link de tu carpeta de Drive y tu API Key para sincronizar');
+    showToast('☁️ Pega primero el enlace de tu carpeta "SpotiDrive Adders" de Google Drive');
     return;
   }
 
   showToast('🔄 Escaneando tu carpeta de Google Drive (5 TB)...');
 
   try {
-    // Llamamos directamente a la API oficial de Google Drive desde el navegador (funciona en GitHub Pages y en Local)
     const driveFiles = await fetchDriveFolderDirectFromBrowser(folderId, apiKey);
 
     if (driveFiles.length === 0) {
-      showToast('ℹ️ No se encontraron archivos MP3/FLAC/WAV en esa carpeta de Drive.');
+      showToast('ℹ️ No se detectaron archivos MP3 o verifica que la carpeta tenga permiso "Cualquier persona con el enlace".');
       return;
     }
 
@@ -1444,7 +1510,8 @@ window.addEventListener('DOMContentLoaded', () => {
     document.getElementById('driveModal').close();
 
     await persistCatalogToServer();
-    if (state.settings.driveFolderId && state.settings.driveApiKey) {
+    if (state.settings.driveFolderId) {
+      document.getElementById('driveBtnLabel').textContent = 'Google Drive Conectado ✓';
       await syncGoogleDriveFolder();
     } else {
       showToast('✅ Configuración guardada correctamente');

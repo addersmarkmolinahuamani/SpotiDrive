@@ -105,26 +105,38 @@ app.post('/api/catalog', (req, res) => {
   res.json({ ok: true, count: current.tracks.length, playlistsCount: current.playlists.length });
 });
 
-// 3. Escanear carpeta de Google Drive (Soporta subcarpetas como Playlists/Álbumes)
+// 3. Escanear carpeta de Google Drive (Funciona CON o SIN API Key usando la vista pública de carpeta de Drive)
 app.get('/api/drive/sync', async (req, res) => {
   const catalog = readCatalog();
   const folderId = req.query.folderId || catalog.settings.driveFolderId || process.env.GOOGLE_DRIVE_FOLDER_ID;
   const apiKey = req.query.apiKey || catalog.settings.driveApiKey || process.env.GOOGLE_DRIVE_API_KEY;
 
-  if (!folderId || !apiKey) {
+  if (!folderId) {
     return res.status(400).json({
-      error: 'Falta el ID de la carpeta de Google Drive o la API Key de Google Drive.'
+      error: 'Falta el enlace o ID de tu carpeta de Google Drive.'
     });
   }
 
   try {
+    // Si no puso API Key, escaneamos directamente la vista pública compartida de Google Drive
+    if (!apiKey) {
+      const embedUrl = `https://drive.google.com/embeddedfolderview?id=${encodeURIComponent(folderId)}#list`;
+      const html = await fetchText(embedUrl);
+      const parsedFiles = parseEmbeddedDriveFolderHtml(html);
+      return res.json({ ok: true, files: parsedFiles, folders: [] });
+    }
+
     const query = encodeURIComponent(`'${folderId}' in parents and trashed = false`);
     const fields = encodeURIComponent('files(id,name,mimeType,size,thumbnailLink,createdTime,videoMediaMetadata)');
     const url = `https://www.googleapis.com/drive/v3/files?q=${query}&fields=${fields}&pageSize=500&key=${apiKey}`;
 
     const data = await fetchJson(url);
     if (data.error) {
-      return res.status(data.error.code || 400).json({ error: data.error.message });
+      // Fallback automático sin API key si la clave falló
+      const embedUrl = `https://drive.google.com/embeddedfolderview?id=${encodeURIComponent(folderId)}#list`;
+      const html = await fetchText(embedUrl);
+      const parsedFiles = parseEmbeddedDriveFolderHtml(html);
+      return res.json({ ok: true, files: parsedFiles, folders: [] });
     }
 
     const files = data.files || [];
@@ -135,7 +147,7 @@ app.get('/api/drive/sync', async (req, res) => {
       if (f.mimeType === 'application/vnd.google-apps.folder') {
         folders.push(f);
       } else if (isAudioFile(f)) {
-        audioFiles.push({ ...f, folderName: 'Biblioteca Principal' });
+        audioFiles.push({ ...f, folderName: 'SpotiDrive Adders' });
       }
     }
 
@@ -249,6 +261,39 @@ function fetchJson(url) {
       });
     }).on('error', reject);
   });
+}
+
+function fetchText(url) {
+  return new Promise((resolve, reject) => {
+    https.get(url, (resp) => {
+      let raw = '';
+      resp.on('data', (chunk) => { raw += chunk; });
+      resp.on('end', () => resolve(raw));
+    }).on('error', reject);
+  });
+}
+
+function parseEmbeddedDriveFolderHtml(html) {
+  const results = [];
+  const entryRegex = /id="entry-([a-zA-Z0-9_-]+)"[\s\S]*?<div class="flip-entry-title">([^<]+)<\/div>/g;
+  let match;
+  while ((match = entryRegex.exec(html)) !== null) {
+    const id = match[1];
+    const name = match[2]
+      .replace(/&amp;/g, '&')
+      .replace(/&#39;/g, "'")
+      .replace(/&quot;/g, '"')
+      .trim();
+    if (isAudioFile({ name, mimeType: 'audio/mpeg' })) {
+      results.push({
+        id,
+        name,
+        mimeType: 'audio/mpeg',
+        folderName: 'SpotiDrive Adders'
+      });
+    }
+  }
+  return results;
 }
 
 app.listen(PORT, () => {

@@ -286,16 +286,16 @@
         </div>
 
         <div class="form-group">
-          <label for="inputDriveFolder">Link o ID de tu Carpeta de Google Drive</label>
-          <input type="text" id="inputDriveFolder" placeholder="Pega el link: https://drive.google.com/drive/folders/1A2B3C..." />
-          <small class="form-help">Asegúrate de que la carpeta en Drive tenga permiso: <strong>"Cualquier persona con el enlace puede ver"</strong>.</small>
+          <label for="inputDriveFolder">Link de tu Carpeta de Google Drive ("SpotiDrive Adders")</label>
+          <input type="text" id="inputDriveFolder" placeholder="Pega el link: https://drive.google.com/drive/folders/1A2B3C..." required />
+          <small class="form-help">Haz clic derecho en tu carpeta <strong>SpotiDrive Adders</strong> en Drive → <strong>Compartir</strong> → <strong>Copiar enlace</strong> (con permiso "Cualquier persona con el enlace").</small>
         </div>
 
         <div class="form-group">
-          <label for="inputDriveApiKey">Google Drive API Key (Para escanear carpetas automáticamente)</label>
-          <input type="password" id="inputDriveApiKey" placeholder="AIzaSy..." autocomplete="off" />
+          <label for="inputDriveApiKey">Google Drive API Key (Opcional)</label>
+          <input type="password" id="inputDriveApiKey" placeholder="Déjalo vacío (no es necesario si la carpeta es pública)" autocomplete="off" />
           <small class="form-help">
-            Se crea gratis en 1 minuto en <a href="https://console.cloud.google.com/apis/credentials" target="_blank" rel="noopener">Google Cloud Console</a> habilitando "Google Drive API". También puedes pegar links individuales de archivos de Drive sin necesidad de API Key en el botón "Agregar Canciones".
+            ¡Ya no necesitas API Key! Solo pega arriba el enlace de tu carpeta compartida y dale a Guardar.
           </small>
         </div>
 
