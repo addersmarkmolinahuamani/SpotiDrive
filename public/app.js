@@ -1423,9 +1423,19 @@ window.addEventListener('DOMContentLoaded', () => {
   setupModernDialogsAndSliders();
   loadInitialCatalog();
 
-  // Registrar Service Worker para instalación en Celular y Laptop (PWA)
+  // Registrar Service Worker con actualización automática inmediata en Celular y Laptop (PWA)
   if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.register('./sw.js').catch(() => {});
+    let refreshing = false;
+    navigator.serviceWorker.addEventListener('controllerchange', () => {
+      if (!refreshing) {
+        refreshing = true;
+        window.location.reload();
+      }
+    });
+    navigator.serviceWorker
+      .register('./sw.js', { updateViaCache: 'none' })
+      .then((reg) => reg.update())
+      .catch(() => {});
   }
 
   window.addEventListener('beforeinstallprompt', (e) => {
